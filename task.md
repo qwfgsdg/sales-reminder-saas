@@ -55,8 +55,8 @@
     - [x] `git add .` and `git commit` <!-- id: 46 -->
     - [x] Create `vercel.json` (optional, for rewrites if needed) <!-- id: 47 -->
 - [ ] Deploy to Vercel <!-- id: 48 -->
-    - [ ] Push to GitHub (User Action) <!-- id: 49 -->
-    - [ ] Import in Vercel & Set Env Vars <!-- id: 50 -->
+    - [x] `git push -u origin main` (User Action - Authentication Required) <!-- id: 49 -->
+    - [x] Import in Vercel & Set Env Vars <!-- id: 50 -->
 - [ ] PWA Conversion (Bonus) <!-- id: 51 -->
     - [ ] Configure `vite-plugin-pwa` <!-- id: 52 -->
     - [ ] Add Manifest & Icons <!-- id: 53 -->
