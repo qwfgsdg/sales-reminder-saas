@@ -51,9 +51,9 @@
     - [x] Update `addTask`, `updateTask`, `deleteTask` to sync with Supabase <!-- id: 43 -->
 
 # Phase 3: Deployment <!-- id: 44 -->
-- [ ] Prepare Codebase <!-- id: 45 -->
-    - [ ] `git add .` and `git commit` <!-- id: 46 -->
-    - [ ] Create `vercel.json` (optional, for rewrites if needed) <!-- id: 47 -->
+- [x] Prepare Codebase <!-- id: 45 -->
+    - [x] `git add .` and `git commit` <!-- id: 46 -->
+    - [x] Create `vercel.json` (optional, for rewrites if needed) <!-- id: 47 -->
 - [ ] Deploy to Vercel <!-- id: 48 -->
     - [ ] Push to GitHub (User Action) <!-- id: 49 -->
     - [ ] Import in Vercel & Set Env Vars <!-- id: 50 -->

@@ -10,7 +10,7 @@ import { useTaskStore } from '@/stores/taskStore'
 import { nextTick } from 'vue'
 
 // Watch for Quick Add Trigger
-taskStore.$subscribe((mutation, state) => {
+taskStore.$subscribe((_, state) => {
     if (state.quickAddDate) {
         input.value = `[${state.quickAddDate}] `
         state.quickAddDate = null // Reset

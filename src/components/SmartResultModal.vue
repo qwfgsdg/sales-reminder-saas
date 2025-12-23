@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, watch } from 'vue'
 import dayjs from 'dayjs'
-import { Task, useTaskStore, HistoryType } from '@/stores/taskStore'
+import { useTaskStore } from '@/stores/taskStore'
+import type { Task, HistoryType } from '@/stores/taskStore'
 import { useQuasar } from 'quasar'
 
 const props = defineProps<{
@@ -26,7 +27,8 @@ const editForm = ref({
   phone: '',
   datePart: '',
   timePart: '',
-  ampm: 'pm'
+  ampm: 'pm',
+  memo: ''
 })
 
 // Reschedule State
@@ -55,7 +57,8 @@ function initialize() {
     phone: props.task.phone || '',
     datePart: d.format('YYYY-MM-DD'),
     timePart: d.format('h:mm'),
-    ampm: d.hour() >= 12 ? 'pm' : 'am'
+    ampm: d.hour() >= 12 ? 'pm' : 'am',
+    memo: props.task.memo || ''
   }
 }
 
@@ -69,7 +72,7 @@ function toggleEdit() {
     if (editForm.value.datePart && editForm.value.timePart) {
         // Simple parser for the edit form
         const [h, m] = editForm.value.timePart.split(':').map(Number)
-        let hour = h
+        let hour = h || 0
         if (editForm.value.ampm === 'pm' && hour < 12) hour += 12
         if (editForm.value.ampm === 'am' && hour === 12) hour = 0
         newDate = dayjs(editForm.value.datePart).hour(hour).minute(m || 0)

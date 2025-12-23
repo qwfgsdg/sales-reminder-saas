@@ -1,73 +1,81 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { storeToRefs } from 'pinia'
-import dayjs from 'dayjs'
-import { useTaskStore, Task } from '@/stores/taskStore'
-import DashboardAnalytics from '@/components/DashboardAnalytics.vue'
+import { useTaskStore } from '@/stores/taskStore'
+import type { Task, HistoryItem } from '@/stores/taskStore'
 import SmartResultModal from '@/components/SmartResultModal.vue'
+import dayjs from 'dayjs'
 
 const taskStore = useTaskStore()
-const { tasks } = storeToRefs(taskStore)
 
 // State
-const selectedStat = ref<'today'|'success'|'retry'|'reject' | null>(null)
-const timeFilter = ref<'today'|'week'|'all'>('today')
+const selectedStat = ref<'today' | 'success' | 'retry' | 'reject' | null>(null)
+const timeFilter = ref<'today' | 'week' | 'all'>('week') // Renamed from timeRange
+const showModal = ref(false)
+const selectedTaskId = ref<string | null>(null)
 
-// Modal State
-const showTaskModal = ref(false)
-const selectedTask = ref<Task | null>(null)
+// Computed for Modal
+const selectedTask = computed(() => {
+    if (!selectedTaskId.value) return null
+    return taskStore.tasks.find(t => t.id === selectedTaskId.value) || null
+})
 
-function openTask(taskId: string) {
-    const t = tasks.value.find(x => x.id === taskId)
-    if (t) {
-        selectedTask.value = t
-        showTaskModal.value = true
-    }
+// Helper: Get task by ID
+function getTask(id: string) {
+    return taskStore.tasks.find(t => t.id === id)
 }
 
-// Helper: Date Filter Logic
+function openTask(taskId: string) {
+    selectedTaskId.value = taskId
+    showModal.value = true
+}
+
+// Helper: Filter Logic
 function isWithinFilter(timestamp: string) {
     const d = dayjs(timestamp)
     const now = dayjs()
-    if (timeFilter.value === 'today') return d.isSame(now, 'day')
-    if (timeFilter.value === 'week') return d.isAfter(now.subtract(7, 'day'))
-    return true // 'all'
+
+    if (timeFilter.value === 'today') {
+        return d.isSame(now, 'day')
+    } else if (timeFilter.value === 'week') {
+        return d.isAfter(now.subtract(7, 'day'))
+    }
+    return true // all
 }
 
 // Stats Computation
 const stats = computed(() => {
-    // Filter logs based on timeFilter
-    const logs = tasks.value.flatMap(t => t.history || []).filter(h => isWithinFilter(h.timestamp))
-    
+    const tasks = taskStore.tasks
+    const logs = tasks.flatMap((t: Task) => t.history || []).filter((h: HistoryItem) => isWithinFilter(h.timestamp))
+
     return {
         totalAttempt: logs.length,
-        success: logs.filter(h => ['success', 'visit_success', 'deposit_complete', 'visit'].includes(h.type)).length,
-        retry: logs.filter(h => ['absence', 'call', 'callback', 'reschedule'].includes(h.type)).length,
-        reject: logs.filter(h => h.type === 'reject').length
+        success: logs.filter((h: HistoryItem) => ['success', 'visit_success', 'deposit_complete', 'visit'].includes(h.type)).length,
+        retry: logs.filter((h: HistoryItem) => ['absence', 'call', 'callback', 'reschedule'].includes(h.type)).length,
+        reject: logs.filter((h: HistoryItem) => h.type === 'reject').length
     }
 })
 
-// Drill down logs
+// Drill-down Logs
 const drillDownLogs = computed(() => {
     if (!selectedStat.value) return []
-    
-    // 1. Flatten all history
-    const logs = tasks.value.flatMap(t => {
-        return (t.history || []).map(h => ({
-            ...h,
+
+    const tasks = taskStore.tasks
+    const logs = tasks.flatMap((t: Task) => {
+        return (t.history || []).map((h: HistoryItem) => ({
+            taskId: t.id,
             taskContent: t.content,
-            taskId: t.id
+            ...h
         }))
     })
+    
+    // 1. Time Filter
+    const timeFiltered = logs.filter((h: any) => isWithinFilter(h.timestamp))
 
-    // 2. Apply Time Filter
-    const timeFiltered = logs.filter(h => isWithinFilter(h.timestamp))
-
-    // 3. Apply Category Filter
-    if (selectedStat.value === 'success') return timeFiltered.filter(h => ['success', 'visit_success', 'deposit_complete', 'visit'].includes(h.type))
-    if (selectedStat.value === 'retry') return timeFiltered.filter(h => ['absence', 'call', 'callback', 'reschedule'].includes(h.type))
-    if (selectedStat.value === 'reject') return timeFiltered.filter(h => h.type === 'reject')
-    if (selectedStat.value === 'today') return timeFiltered // 'today' here means 'Total Attempts' in the UI context
+    // 2. Type Filter
+    if (selectedStat.value === 'success') return timeFiltered.filter((h: any) => ['success', 'visit_success', 'deposit_complete', 'visit'].includes(h.type))
+    if (selectedStat.value === 'retry') return timeFiltered.filter((h: any) => ['absence', 'call', 'callback', 'reschedule'].includes(h.type))
+    if (selectedStat.value === 'reject') return timeFiltered.filter((h: any) => h.type === 'reject')
+    if (selectedStat.value === 'today') return timeFiltered // Show all for 'total' click
 
     return []
 })
@@ -80,12 +88,10 @@ function handleStatClick(type: 'today'|'success'|'retry'|'reject') {
 function formatType(type: string) {
     const map: Record<string, string> = {
         'visit_success': '내방성공', 'deposit_complete': '입금', 'visit': '내방예약',
-        'absence': '부재', 'call': '재통화', 'callback': '재통화', 'reschedule': '변경', 'reject': '거절'
+        'absence': '부재', 'call': '재통화', 'callback': '재통화', 'reschedule': '변경', 'reject': '거절',
+        'success': '성공'
     }
     return map[type] || type
-}
-function getTask(id: string) {
-    return tasks.value.find(t => t.id === id)
 }
 </script>
 
@@ -106,9 +112,6 @@ function getTask(id: string) {
               <q-btn flat dense size="sm" :color="timeFilter==='all'?'primary':'grey'" label="전체" @click="timeFilter='all'" class="q-px-sm" />
           </div>
       </div>
-
-      <!-- Analytics Chart -->
-      <DashboardAnalytics :tasks="tasks" />
 
       <!-- Stats Cards -->
       <div class="row q-col-gutter-sm q-mb-lg">
@@ -170,8 +173,8 @@ function getTask(id: string) {
                                 <div class="text-bold text-sm">{{ log.taskContent }}</div>
                                 <div class="text-xs text-grey-6 row items-center">
                                     {{ dayjs(log.timestamp).format('MM/DD HH:mm') }}
-                                    <q-badge v-if="getTask(log.taskId)?.history.length > 1" color="grey-3" text-color="grey-8" class="q-ml-sm text-xxs px-1">
-                                        {{ getTask(log.taskId)?.history.length }}번째 시도
+                                    <q-badge v-if="(getTask(log.taskId)?.history?.length ?? 0) > 1" color="grey-3" text-color="grey-8" class="q-ml-sm text-xxs px-1">
+                                        {{ getTask(log.taskId)?.history?.length }}번째 시도
                                     </q-badge>
                                 </div>
                             </q-item-section>
@@ -224,7 +227,7 @@ function getTask(id: string) {
       <!-- Smart Modal Interaction -->
       <SmartResultModal 
         v-if="selectedTask"
-        v-model="showTaskModal" 
+        v-model="showModal" 
         :task="selectedTask" 
       />
 

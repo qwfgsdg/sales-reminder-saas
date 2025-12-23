@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import dayjs from 'dayjs'
-import { useTaskStore, Task } from '@/stores/taskStore'
+import { useTaskStore } from '@/stores/taskStore'
+import type { Task } from '@/stores/taskStore'
 import SmartResultModal from '@/components/SmartResultModal.vue'
 
 const taskStore = useTaskStore()

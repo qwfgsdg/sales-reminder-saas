@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { storeToRefs } from 'pinia'
-import { useTaskStore, Task } from '@/stores/taskStore'
+import { useTaskStore } from '@/stores/taskStore'
+import type { Task } from '@/stores/taskStore'
 import TaskItem from '@/components/TaskItem.vue'
 import SmartResultModal from '@/components/SmartResultModal.vue'
 
 const taskStore = useTaskStore()
-const { activeTasks, completedTasks, overdueTasks, todayTasks, upcomingTasks } = storeToRefs(taskStore)
+const { completedTasks, overdueTasks, todayTasks, upcomingTasks } = storeToRefs(taskStore)
 
 // State
 const showModal = ref(false)
@@ -32,7 +33,7 @@ function matchesSearch(t: Task) {
 
     // 2. History Deep Search
     if (t.history && t.history.length > 0) {
-        return t.history.some(h => {
+        return t.history.some((h: any) => { // Using any for history item to be safe, or Import HistoryItem
              // Search in history note
              if (h.note && h.note.toLowerCase().includes(q)) return true
              // Search in history type (optional, e.g. searching 'reject')

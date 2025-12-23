@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { useTaskStore } from '@/stores/taskStore'
 import SmartInput from '@/components/SmartInput.vue'
 import NotificationStack from '@/components/NotificationStack.vue'
@@ -8,7 +7,6 @@ import dayjs from 'dayjs'
 import { useQuasar } from 'quasar'
 
 const leftDrawerOpen = ref(true) 
-const router = useRouter()
 const taskStore = useTaskStore()
 const $q = useQuasar()
 
@@ -46,7 +44,7 @@ function triggerRestore() {
 async function handleRestore(event: Event) {
   const target = event.target as HTMLInputElement
   if (target.files && target.files.length > 0) {
-    const success = await taskStore.importData(target.files[0])
+    const success = await taskStore.importData(target.files[0]!)
     if (success) {
       $q.notify({ message: '복원 완료! 데이터를 새로고침합니다.', color: 'positive' })
       setTimeout(() => window.location.reload(), 500) // Safety reload to ensure full state sync

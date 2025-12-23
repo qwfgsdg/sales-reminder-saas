@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import dayjs from 'dayjs'
 import isToday from 'dayjs/plugin/isToday'
-import { Task } from '@/stores/taskStore'
+import type { Task } from '@/stores/taskStore'
 
 dayjs.extend(isToday)
 

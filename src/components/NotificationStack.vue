@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import { useTaskStore, Task } from '@/stores/taskStore'
+import { useTaskStore } from '@/stores/taskStore'
+import type { Task } from '@/stores/taskStore'
 import dayjs from 'dayjs'
 import { useQuasar } from 'quasar'
 

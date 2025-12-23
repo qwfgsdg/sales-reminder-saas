@@ -35,19 +35,21 @@ export function useNLP() {
 
         if (weekM && weekM[1] && weekM[2]) {
             const targetDay = dayMap[weekM[2]]
-            const currentDay = now.getDay()
-            let offset = targetDay - currentDay
+            if (targetDay !== undefined) {
+                const currentDay = now.getDay()
+                let offset = targetDay - currentDay
 
-            if (weekM[1] === '이번주') {
-                if (offset < 0) offset += 7
-            } else if (weekM[1] === '다음주') {
-                offset += 7
-            } else if (weekM[1] === '다다음주') {
-                offset += 14
+                if (weekM[1] === '이번주') {
+                    if (offset < 0) offset += 7
+                } else if (weekM[1] === '다음주') {
+                    offset += 7
+                } else if (weekM[1] === '다다음주') {
+                    offset += 14
+                }
+                d = new Date()
+                d.setDate(d.getDate() + offset)
+                c = c.replace(weekM[0], '').trim()
             }
-            d = new Date()
-            d.setDate(d.getDate() + offset)
-            c = c.replace(weekM[0], '').trim()
         }
 
         // 3. Date Parsing
