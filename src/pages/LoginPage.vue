@@ -50,6 +50,27 @@ async function handleLogin() {
   } finally {
     loading.value = false
   }
+  } finally {
+    loading.value = false
+  }
+}
+
+// Debug Logic
+const debugUrl = ref(import.meta.env.VITE_SUPABASE_URL)
+const debugKey = ref(import.meta.env.VITE_SUPABASE_ANON_KEY)
+const debugError = ref('')
+
+async function testConnection() {
+    try {
+        debugError.value = 'Testing...'
+        const { data, error } = await supabase.from('tasks').select('count').limit(1)
+        if (error) throw error
+        debugError.value = 'Connection Success!'
+        $q.notify({ type: 'positive', message: 'Connected to Supabase!' })
+    } catch (e: any) {
+        debugError.value = e.message || JSON.stringify(e)
+        $q.notify({ type: 'negative', message: 'Connection Failed' })
+    }
 }
 </script>
 
@@ -103,6 +124,17 @@ async function handleLogin() {
               @click="isSignUp = !isSignUp"
             />
           </q-card-section>
+          
+          <!-- Debug Section -->
+          <q-expansion-item label="Debug Info (개발자용)" class="bg-grey-3 text-caption">
+            <div class="q-pa-md">
+               <div><strong>URL:</strong> {{ debugUrl }}</div>
+               <div><strong>Key:</strong> {{ debugKey ? 'Loaded (' + debugKey.length + ' chars)' : 'Missing' }}</div>
+               <div v-if="debugError" class="text-negative q-mt-sm">Error: {{ debugError }}</div>
+               <q-btn label="Test Connection" size="sm" color="warning" class="full-width q-mt-sm" @click="testConnection" />
+            </div>
+          </q-expansion-item>
+
         </q-card>
       </q-page>
     </q-page-container>
