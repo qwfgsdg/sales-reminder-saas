@@ -50,9 +50,6 @@ async function handleLogin() {
   } finally {
     loading.value = false
   }
-  } finally {
-    loading.value = false
-  }
 }
 
 // Debug Logic
