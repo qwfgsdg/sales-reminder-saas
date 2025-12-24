@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useTaskStore } from '@/stores/taskStore'
+import { useAuthStore } from '@/stores/authStore' // Added this line
 import SmartInput from '@/components/SmartInput.vue'
 import NotificationStack from '@/components/NotificationStack.vue'
 import dayjs from 'dayjs'
@@ -8,6 +9,7 @@ import { useQuasar } from 'quasar'
 
 const leftDrawerOpen = ref(true) 
 const taskStore = useTaskStore()
+const authStore = useAuthStore() // Added this line
 const $q = useQuasar()
 
 function toggleLeftDrawer() {
@@ -79,12 +81,35 @@ const menuItems = [
       <div class="q-pa-md text-white text-weight-bold row items-center">
          메뉴
       </div>
-      <q-list padding>
-        <q-item v-for="item in menuItems" :key="item.label" clickable v-ripple :to="item.to" active-class="text-white bg-slate-800">
-          <q-item-section avatar><q-icon :name="item.icon" /></q-item-section>
-          <q-item-section>{{ item.label }}</q-item-section>
-        </q-item>
-      </q-list>
+      <q-scroll-area style="height: calc(100% - 120px); margin-top: 0px; border-right: 1px solid #ddd">
+        <q-list padding>
+          <q-item v-for="item in menuItems" :key="item.label" clickable v-ripple :to="item.to" active-class="text-white bg-slate-800">
+            <q-item-section avatar><q-icon :name="item.icon" /></q-item-section>
+            <q-item-section>{{ item.label }}</q-item-section>
+          </q-item>
+
+          <q-item clickable v-ripple to="/settings" active-class="bg-blue-1 text-primary">
+            <q-item-section avatar>
+              <q-icon name="settings" />
+            </q-item-section>
+            <q-item-section>설정</q-item-section>
+          </q-item>
+
+          <!-- Admin Link -->
+          <q-item 
+            v-if="authStore.isAdmin"
+            clickable 
+            v-ripple 
+            to="/admin" 
+            active-class="bg-purple-1 text-purple"
+          >
+            <q-item-section avatar>
+              <q-icon name="admin_panel_settings" color="purple" />
+            </q-item-section>
+            <q-item-section class="text-purple">관리자</q-item-section>
+          </q-item>
+        </q-list>
+      </q-scroll-area>
       
       <div class="absolute-bottom q-pa-md border-t border-slate-700 row q-gutter-sm">
          <q-btn size="sm" outline color="grey-5" class="col" icon="download" label="백업" @click="handleBackup" />

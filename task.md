@@ -59,4 +59,8 @@
     - [x] Import in Vercel & Set Env Vars <!-- id: 50 -->
 - [ /] PWA Conversion (Bonus) <!-- id: 51 -->
     - [ ] Configure `vite-plugin-pwa` <!-- id: 52 -->
-    - [ ] Add Manifest & Icons <!-- id: 53 -->
+- [ ] Admin Approval System (Method 2) <!-- id: 54 -->
+    - [x] **[DB]** Run SQL Script (Profiles + Triggers) <!-- id: 55 -->
+    - [x] **[FE]** Create `authStore` <!-- id: 56 -->
+    - [x] **[FE]** Create `PendingPage` & `AdminPage` <!-- id: 57 -->
+    - [x] **[FE]** Update Router Guards <!-- id: 58 -->
