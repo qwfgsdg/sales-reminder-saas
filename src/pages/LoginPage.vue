@@ -60,7 +60,7 @@ const debugError = ref('')
 async function testConnection() {
     try {
         debugError.value = 'Testing...'
-        const { data, error } = await supabase.from('tasks').select('count').limit(1)
+        const { error } = await supabase.from('tasks').select('count').limit(1)
         if (error) throw error
         debugError.value = 'Connection Success!'
         $q.notify({ type: 'positive', message: 'Connected to Supabase!' })
